@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Movie Data</title>
+
+
+    <!-- siimple style -->
+    <link href="https://cdn.datatables.net/1.10.10/css/jquery.dataTables.min.css" rel="stylesheet">
+    
+  </head>
+
+  <body>
+  <table id="mainTable" class="display" cellspacing="0" width="100%">
+
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Year</th>
+                <th>Duration</th>
+                <th>Rating</th>
+                <th>Meta</th>
+                <th>Plot</th>
+                <th>Genre</th>
+                <th>Awards</th>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <th>Name</th>
+                <th>Year</th>
+                <th>Duration</th>
+                <th>Rating</th>
+                <th>Meta</th>
+                <th>Plot</th>
+                <th>Genre</th>
+                <th>Awards</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <script src="https://code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $('#mainTable').DataTable( {
+            "ajax": 'content.txt'
+        } );
+    } );
+    </script>
+ </body>
+</html>
