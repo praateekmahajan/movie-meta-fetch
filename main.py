@@ -1,4 +1,7 @@
 import os
+import requests
+import json
+
 currentDir = os.getcwd()
 print "Your current directory is : " 
 print currentDir
@@ -9,7 +12,9 @@ if(flag=="n"):
 
 dirs = os.listdir(currentDir)
 
+totalmovies = len(dirs)-2
 counter = 0
+errorflag = 0
 finaljson = "{\n\t\"data\": \n\t\t[\n"
 errorfile = open("ERRORLOG", "w")
 
@@ -38,12 +43,62 @@ for filename in dirs:
     	if(year.isalpha()):
     		moviename = moviename + " " + year    
     		moviename=moviename.rstrip()
-    		print moviename + " y:N/A"
+        	url = 'http://www.omdbapi.com/?t={0}'.format(moviename)
         elif(year.isdigit()  and len(year)==4):
-	        print moviename + " y:" + year
+	        url = 'http://www.omdbapi.com/?t={0}&y={1}'.format(moviename, year)
         else:
-        	errorfile.write(originalfile + "\n")
-        # counter = counter+1
+            errorfile.write(originalfile + " -- File name has error in format" + "\n")
+            errorflag = 1
 
+            # totalmovies = totalmovies - 1
 
+        counter = counter + 1
+
+        fetchedDetails = requests.get(url)
+        details = fetchedDetails.content
+        json1 = json.loads(details)
+        if json1['Response'] == "False":
+            errorflag = 1
+            errorfile.write(originalfile + " -- API Error : " + json1['Error'] + " URL : " + url + "\n")
+            # totalmovies = totalmovies - 1
+            
+        else:
+            movieTitle = moviename
+            movieYear = ''
+            movieRuntime = ''
+            movieGenre = ''
+            moviePlot = ''
+            movieMeta = ''
+            movieImdb = ''
+            movieAwards = ''
+            if json1['Runtime'] == "N/A":
+            	continue
+            if json1['Year']:
+                movieYear = json1['Year'].encode('utf-8').replace('"','\"')
+            if (json1['Runtime']):
+                movieRuntime = json1['Runtime'].encode('utf-8').replace('"','\"')
+            if json1['Genre']:
+                movieGenre = json1['Genre'].encode('utf-8').replace('"','\"')
+            if json1['Plot']:
+                moviePlot = json1['Plot'].encode('utf-8').replace('"','\"')
+            if json1['Metascore']:
+                movieMeta = json1['Metascore'].encode('utf-8').replace('"','\"')
+            if json1['imdbRating']:
+                movieImdb = json1['imdbRating'].encode('utf-8').replace('"','\"')
+            if json1['Awards']:
+                movieAwards = json1['Awards'].encode('utf-8').replace('"','\"')
+            print originalfile + " was successful"
+
+            jsonpart = '\t\t\t["{}","{}","{}","{}","{}","{}","{}","{}"]'.format(movieTitle, movieYear, movieRuntime, movieImdb, movieMeta, moviePlot, movieGenre, movieAwards)
+            if counter != totalmovies:
+
+                finaljson = ''.join([finaljson, jsonpart, " , \n"])
+                # put coma
+            else:
+                finaljson = ''.join([finaljson, jsonpart])
+
+finaljson = ''.join([finaljson, "\n\t\t]\n}"])
+fh = open("content.txt", "w")
+fh.write(finaljson)
+fh.close()
 errorfile.close()
